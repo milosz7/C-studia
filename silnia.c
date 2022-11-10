@@ -14,7 +14,10 @@ int reset()
     printf("Czy chcesz spróbować jeszcze raz? y/n\n");
     scanf(" %c", &input);
     if (input == 'y')
+    {
+      while ((getchar()) != '\n');
       break;
+    }
     if (input == 'n')
       exit(0);
     printf("Nieprawidłowa operacja!\n");
