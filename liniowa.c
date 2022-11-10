@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define FLOAT_CHAR_LIMIT 20
+#define DOUBLE_INPUT_CHAR_LIMIT 20
 
 int reset()
 {
@@ -10,8 +10,10 @@ int reset()
   {
     printf("Czy chcesz spróbować jeszcze raz? y/n\n");
     scanf(" %c", &input);
-    if (input == 'y') {
-      while((getchar()) != '\n');
+    if (input == 'y')
+    {
+      while ((getchar()) != '\n')
+        ;
       break;
     }
     if (input == 'n')
@@ -20,31 +22,33 @@ int reset()
   } while (1);
 }
 
+double get_input(char param_symbol)
+{
+  char user_input[DOUBLE_INPUT_CHAR_LIMIT];
+  printf("Podaj parametr %c funkcji f(x) = ax + b:\n", param_symbol);
+  fgets(user_input, DOUBLE_INPUT_CHAR_LIMIT, stdin);
+  return atof(user_input);
+}
+
 void main()
 {
-#define miejsce_zerowe(a, b) (b * -1 / a)
+#define miejsce_zerowe(a, b) b == 0 ? 0 : (b * -1 / a)
 
   do
   {
+    double a = 0;
+    double b = 0;
+    double output;
 
-    char input_a[FLOAT_CHAR_LIMIT];
-    char input_b[FLOAT_CHAR_LIMIT];     
-    float a = 0;
-    float b = 0;
-    float output;
-
-    printf("Podaj parametr a funkcji f(x) = ax + b: \n");
-    fgets(input_a, FLOAT_CHAR_LIMIT, stdin);
-    a = atof(input_a);
-    if (a == 0) {
+    a = get_input('a');
+    if (a == 0)
+    {
       printf("Parametr a nie może być równy 0, podaj argument jeszcze raz.\n");
       continue;
     }
-    printf("Podaj parametr b funkcji f(x) = ax + b: \n");
-    fgets(input_b, FLOAT_CHAR_LIMIT, stdin);
-    b = atof(input_b);
+    b = get_input('b');
     output = miejsce_zerowe(a, b);
-    printf("%s %f\n", "Miejsce zerowe: ", output);
+    printf("%s%f\n", "Miejsce zerowe: ", output);
     reset();
   } while (1);
 }
