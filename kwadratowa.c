@@ -1,11 +1,16 @@
 #include <stdio.h>
 #include <math.h>
 #include <stdlib.h>
+#include <ctype.h>
 
 #define DELTA_FORMULA(a, b, c) ((b * b) - (4 * a * c))
-#define LINEAR_FUNCTION_FORMULA(b, c) ((c * -1 / b))
-#define FLOAT_CHAR_LIMIT 20
+#define LINEAR_FUNCTION_FORMULA(b, c) c == 0 ? 0 : ((c * -1 / b))
+#define DOUBLE_INPUT_CHAR_LIMIT 20
 
+void clear()
+{
+  while ((getchar()) != '\n');
+}
 
 int reset()
 {
@@ -16,7 +21,7 @@ int reset()
     scanf(" %c", &input);
     if (input == 'y')
     {
-      while ((getchar()) != '\n');
+      clear();
       break;
     }
     if (input == 'n')
@@ -25,31 +30,45 @@ int reset()
   } while (1);
 }
 
-float get_input(char param_name) {
-  char input_ref[20];
-  printf("Podaj parametr %c funkcji f(x) = ax^2 + bx + c: ", param_name);
-  fgets(input_ref, FLOAT_CHAR_LIMIT, stdin);
-  return atof(input_ref);
+double get_input(char param_name)
+{
+  char input_ref[DOUBLE_INPUT_CHAR_LIMIT];
+  char *e;
+  double output;
+  printf("Podaj parametr %c funkcji f(x) = ax^2 + bx + c:\n", param_name);
+  fgets(input_ref, DOUBLE_INPUT_CHAR_LIMIT, stdin);
+  output = strtod(input_ref, &e);
+  if (!isspace(*e))
+  {
+    printf("Nieprawidłowy argument (konwersja do double jest niemożliwa)!\n");
+    clear();
+    get_input(param_name);
+  }
+  else
+  {
+    return output;
+  }
 }
 
 int main()
 {
   do
   {
-    char input_a[FLOAT_CHAR_LIMIT], input_b[FLOAT_CHAR_LIMIT], input_c[FLOAT_CHAR_LIMIT];
-    float a, b, c, delta, rozw1, rozw2;
+    double a, b, c, delta, result_1, result_2;
 
     a = get_input('a');
     b = get_input('b');
     c = get_input('c');
-    if (a == 0 && b == 0) {
+    if (a == 0 && b == 0)
+    {
       printf("Dla podanych parametrów funkcja nie ma miejsc zerowych. Spróbuj ponownie.\n");
       continue;
     }
     delta = DELTA_FORMULA(a, b, c);
-    if (a == 0 && b != 0) {
-      rozw1 = LINEAR_FUNCTION_FORMULA(b, c);
-      printf("Funkcja o podanych parametrach jest funkcją liniową. Jej miejsce zerowe wynosi: %f\n", rozw1);
+    if (a == 0 && b != 0)
+    {
+      result_1 = LINEAR_FUNCTION_FORMULA(b, c);
+      printf("Funkcja o podanych parametrach jest funkcją liniową. Jej miejsce zerowe wynosi: %f\n", result_1);
       reset();
       continue;
     }
@@ -61,14 +80,14 @@ int main()
     }
     if (delta == 0)
     {
-      rozw1 = (-b / 2 * a);
-      printf("%s%f\n", "Rozwiązanie równania: ", rozw1);
+      result_1 = result_2 = (-b / 2 * a);
+      printf("Rozwiązania równania: %f, %f\n", result_1, result_2);
       reset();
       continue;
     }
-    rozw1 = (-b - sqrt(delta)) / (2 * a);
-    rozw2 = (-b + sqrt(delta)) / (2 * a);
-    printf("%s%f%c%f\n", "Rozwiązania równania:", rozw1, ',', rozw2);
+    result_1 = (-b - sqrt(delta)) / (2 * a);
+    result_2 = (-b + sqrt(delta)) / (2 * a);
+    printf("Rozwiązania równania: %f, %f\n", result_1, result_2);
     reset();
   } while (1);
 }
