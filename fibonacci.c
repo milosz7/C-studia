@@ -120,12 +120,12 @@ int main()
     requested_num = get_input();
     if (requested_num == 1)
     {
-      printf("%d. liczba ciągu fibonacciego wynosi: 0\n", requested_num);
+      printf("%d. wyraz ciągu fibonacciego wynosi: 0\n", requested_num);
       reset();
     }
     if (requested_num == 2)
     {
-      printf("%d. liczba ciągu fibonacciego wynosi: 1\n", requested_num);
+      printf("%d. wyraz ciągu fibonacciego wynosi: 1\n", requested_num);
       reset();
     }
     while (second_number_idx != requested_num)
@@ -153,7 +153,7 @@ int main()
       if (second_number[num_start_idx] != 0)
         break;
     }
-    printf("%d. liczba ciągu fibonacciego wynosi: ", requested_num);
+    printf("%d. wyraz ciągu fibonacciego wynosi: ", requested_num);
     for (; num_start_idx < MAX_OUTPUT_LENGTH; num_start_idx++)
     {
       printf("%d", second_number[num_start_idx]);
