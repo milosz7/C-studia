@@ -1,7 +1,14 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <ctype.h>
 
 #define DOUBLE_INPUT_CHAR_LIMIT 20
+
+void clear()
+{
+  while ((getchar()) != '\n')
+    ;
+}
 
 int reset()
 {
@@ -24,10 +31,24 @@ int reset()
 
 double get_input(char param_symbol)
 {
+  double output;
+  char *e;
   char user_input[DOUBLE_INPUT_CHAR_LIMIT];
   printf("Podaj parametr %c funkcji f(x) = ax + b:\n", param_symbol);
   fgets(user_input, DOUBLE_INPUT_CHAR_LIMIT, stdin);
-  return atof(user_input);
+  output = strtod(user_input, &e);
+  if (isdigit(*user_input) == 0)
+  {
+    printf("Niepoprawna wartość argumentu %c.\n", param_symbol);
+    return get_input(param_symbol);
+  }
+  if (!isspace(*e))
+  {
+    printf("Nieprawidłowy argument (konwersja do double jest niemożliwa)!\n");
+    clear();
+    return get_input(param_symbol);
+  }
+  return output;
 }
 
 void main()
