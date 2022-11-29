@@ -15,7 +15,8 @@ int reset()
     scanf(" %c", &input);
     if (input == 'y')
     {
-      while ((getchar()) != '\n');
+      while ((getchar()) != '\n')
+        ;
       break;
     }
     if (input == 'n')
@@ -31,7 +32,7 @@ int main()
     char input[MAX_FACTORIAL_LENGTH];
     char result[MAX_LENGTH];
     int result_reverse[MAX_LENGTH] = {1};
-    int digit, remainder, factorial, result_length, last_index, num_start;
+    int digit, remainder, factorial, last_index, num_start;
     printf("Podaj liczbę z jakiej chcesz obliczyć silnię:\n");
     scanf("%3s", input);
     factorial = atoi(input);
@@ -42,28 +43,21 @@ int main()
     }
     for (int i = 1; i < factorial + 1; i++)
     {
-      result_length = (sizeof(result_reverse) / sizeof(result_reverse[0]));
-      for (int j = 0; j < result_length; j++)
+      for (int j = 0; j < MAX_LENGTH; j++)
       {
         digit = result_reverse[j] * i + remainder;
         result_reverse[j] = digit % SYSTEM_BASE;
         remainder = digit / SYSTEM_BASE;
       }
     }
-    while (remainder > 0)
-    {
-      result_reverse[result_length] = remainder % SYSTEM_BASE;
-      remainder /= SYSTEM_BASE;
-      result_length++;
-    }
-    if (result_length > MAX_LENGTH)
+    if (remainder > 0)
     {
       printf("Nastąpiło przepełnienie!\n");
       reset();
       continue;
     }
     last_index = sizeof(result_reverse) / sizeof(result_reverse[0]) - 1;
-    for (int k = 0; k < result_length; k++)
+    for (int k = 0; k < MAX_LENGTH; k++)
     {
       sprintf(&result[k], "%d", result_reverse[last_index - k]);
     }
@@ -73,7 +67,7 @@ int main()
         break;
     }
     printf("Silnia %d wynosi: ", factorial);
-    for (; num_start < result_length; num_start++)
+    for (; num_start < MAX_LENGTH; num_start++)
     {
       printf("%c", result[num_start]);
     }
