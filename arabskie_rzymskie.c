@@ -2,7 +2,7 @@
 #include <ctype.h>
 #include <stdlib.h>
 #include <string.h>
-#include <math.h>
+#include <regex.h>
 
 #define BASE_INPUT_SIZE 15
 #define MAX_ARABIC 3999
@@ -10,6 +10,7 @@
 #define MAX_STRUCT_ELEM_LEN 3
 #define ROM_TO_AR_LEN 6
 #define CHAR_REPETITIONS_LIMIT 4
+#define ROMAN_REGEXR "^M{0,3}(CM|CD|D?C{0,3})(XC|XL|L?X{0,3})(IX|IV|V?I{0,3})\n$"
 
 typedef struct
 {
@@ -86,7 +87,6 @@ void roman_to_arabic(char *user_input, ROM_TO_AR *rz, int input_len)
 
 int validate_input(char *user_input, int input_size)
 {
-  char possible_roman[] = "MDCLXVI";
   char *errptr;
   int is_arabic = (isdigit(user_input[0])) ? 1 : 0;
 
@@ -96,36 +96,29 @@ int validate_input(char *user_input, int input_size)
     {
       if (!isdigit(user_input[i]))
       {
-        printf("invalid input\n");
         return 0;
       }
     }
     int converted = (int)strtol(user_input, &errptr, 10);
     if (converted > MAX_ARABIC || converted == 0)
     {
-      printf("invalid input\n");
       return 0;
     }
   }
   else
   {
-    int repetitions = 1;
-    int last_char_idx = 0;
-    char last_char = 'A';
-    char *current_char;
-    int adjacent_valid = 1;
-    // inicjuje jako A aby pierwsze porównanie nie okazało się prawdziwe ze względu na śmieci przypisane automatycznie
-    for (int j = 0; j < input_size; j++)
+    for (int i = 0; i < input_size; i++)
     {
-      user_input[j] = toupper(user_input[j]);
-      repetitions = (last_char == user_input[j]) ? repetitions += 1 : 1;
-      last_char = user_input[j];
-      current_char = strchr(possible_roman, (int)user_input[j]);
-      if (current_char == NULL || repetitions == CHAR_REPETITIONS_LIMIT)
-      {
-        printf("invalid input\n");
-        return 0;
-      }
+      user_input[i] = toupper(user_input[i]);
+    }
+    int is_valid;
+    regex_t regexr;
+    is_valid = regcomp(&regexr, ROMAN_REGEXR, REG_EXTENDED);
+    is_valid = regexec(&regexr, user_input, 0, NULL, 0);
+    if (is_valid == REG_NOMATCH)
+    {
+      regfree(&regexr);
+      return 0;
     }
   }
   return 1;
@@ -146,6 +139,7 @@ int main()
 
     while (!is_valid)
     {
+      printf("Podaj liczbę arabską lub rzymską, którą chcesz przekonwertować (1-3999):\n");
       input_len = getline(&user_input, &input_size, stdin);
       if (input_len == -1 || input_len > BASE_INPUT_SIZE + 1)
       {
@@ -153,8 +147,11 @@ int main()
         continue;
       }
       is_valid = validate_input(user_input, input_len - 1);
+      if (!is_valid)
+      {
+        printf("Nieprawidłowy argument!\n");
+      }
     }
-
     if (is_arabic(user_input[0]))
     {
       arabic_to_roman(user_input, ar_to_rom);
