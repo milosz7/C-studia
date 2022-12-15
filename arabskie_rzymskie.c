@@ -84,16 +84,6 @@ void roman_to_arabic(char *user_input, ROM_TO_AR *rz, int input_len)
   printf("Result: %d\n", result);
 }
 
-// int check_adjacent(char *left, char *current, char *right) {
-//   if (right == NULL) {
-//     return 1;
-//   }
-//   if (abs(left - current) > 1 && abs(left - right) > 1) {
-//     return 0;
-//   }
-//   return 1;
-// }
-
 int validate_input(char *user_input, int input_size)
 {
   char possible_roman[] = "MDCLXVI";
@@ -136,10 +126,6 @@ int validate_input(char *user_input, int input_size)
         printf("invalid input\n");
         return 0;
       }
-      // if(j > 0 && !check_adjacent(strchr(possible_roman, (int)user_input[j-1]), current_char, strchr(possible_roman, (int)user_input[j+1]))) {
-      //   printf("Invalid here");
-      //   return 0;
-      // }
     }
   }
   return 1;
