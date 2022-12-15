@@ -53,7 +53,7 @@ void arabic_to_roman(char *user_input, AR_TO_ROM *rz)
       input_converted = input_converted - current_arabic;
     }
   }
-  printf("%s\n", output);
+  printf("Wynik: %s\n", output);
 }
 
 void roman_to_arabic(char *user_input, ROM_TO_AR *rz, int input_len)
@@ -82,7 +82,7 @@ void roman_to_arabic(char *user_input, ROM_TO_AR *rz, int input_len)
       }
     }
   }
-  printf("Result: %d\n", result);
+  printf("Wynik: %d\n", result);
 }
 
 int validate_input(char *user_input, int input_size)
