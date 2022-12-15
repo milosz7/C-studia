@@ -4,6 +4,7 @@
 #include <math.h>
 
 #define MAX_INT_NUM_SIZE 11
+#define FAST_EXECUTION_AMOUNT_LIMIT 1000000
 
 int get_input(char *user_input)
 {
@@ -20,33 +21,41 @@ int get_input(char *user_input)
   return overflow;
 }
 
-int input_to_int(char *input)
-{
-  int length = 1;
-  int desired_number = 0;
-  for (; input[length]; length++)
-    ;
-  printf("Length: %d\n", length);
-  int converted[length];
-  for (int i = 0; i < length; i++)
+void print_numbers(int *numbers, int range) {
+  printf("Liczby pierwsze z wybranego zakresu to:");
+  for (int i = 0; i < range; i++)
   {
-    char sign;
-    sign = input[i];
-    if (sign == '\n')
-      break;
-    if ((int)sign - 48 > 9 || (int)sign - 48 < 0)
-      return desired_number;
-    converted[i] = (int)sign - 48;
+    if (numbers[i]) {
+      printf(" %d", numbers[i]);
+    }
   }
-  for (int j = 0; j < length - 1; j++)
-  {
-    desired_number += (int)(converted[j] * pow(10, (length - 2 - j)));
-  }
-  return desired_number;
+  printf("\n");
 }
 
-void print_numbers(int *numbers) {
+void clear()
+{
+  while ((getchar()) != '\n')
+    ;
+}
 
+int reset()
+{
+  char input;
+  do
+  {
+    scanf(" %c", &input);
+    if (input == 'y')
+    {
+      clear();
+      return 0;
+    }
+    if (input == 'n') {
+      clear();
+      return 1;
+    }
+    clear();
+    printf("Nieprawidłowa operacja! (y/n)\n");
+  } while (1);
 }
 
 int main()
@@ -54,22 +63,34 @@ int main()
   int input_converted = 0;
   int overflow = 0;
   char user_input[MAX_INT_NUM_SIZE + 1];
+  char *endptr;
   int current_smallest;
-  // int *digits;
+  int *digits;
+  int should_reset = 0;
 
   while (input_converted < 1 || overflow)
   {
     printf("Podaj liczbę graniczną przedziału 2-x z jakiego chcesz otrzymać liczby pierwsze:\n");
     overflow = get_input(user_input);
-    input_converted = input_to_int(user_input);
-    printf("%d", input_converted);
+    input_converted = (int)strtol(user_input, &endptr, 10);
     if (overflow || input_converted < 1)
     {
       printf("Niepoprawny argument.\n");
     }
+    if (input_converted > FAST_EXECUTION_AMOUNT_LIMIT) {
+      printf("To może zająć dużo czasu (ale powinno zadziałać). Czy chcesz kontynuować? (y/n)\n");
+      should_reset = reset();
+      if (should_reset) {
+        input_converted = 0;
+      }
+    }
   }
 
-  int digits[input_converted - 2];
+  if ((digits = (int *)malloc((input_converted - 2) * sizeof(int))) == NULL) {
+    fprintf(stderr, "Memory allocation error.");
+    exit(1);
+  }
+  
   for (int i = 0; i < (input_converted - 1); i++)
   {
     digits[i] = i + 2;
@@ -96,12 +117,6 @@ int main()
     }
   }
 
-  printf("Liczby pierwsze z wybranego zakresu to: ");
-
-  for (int i = 0; i < (input_converted - 1); i++)
-  {
-    if (digits[i]) {
-      printf("%d ", digits[i]);
-    }
-  }
+  print_numbers(digits, (input_converted - 1));
+  free(digits);
 }
