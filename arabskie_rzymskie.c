@@ -9,7 +9,6 @@
 #define AR_TO_ROM_LEN 12
 #define MAX_STRUCT_ELEM_LEN 3
 #define ROM_TO_AR_LEN 6
-#define CHAR_REPETITIONS_LIMIT 4
 #define ROMAN_REGEXR "^M{0,3}(CM|CD|D?C{0,3})(XC|XL|L?X{0,3})(IX|IV|V?I{0,3})\n$"
 
 typedef struct
