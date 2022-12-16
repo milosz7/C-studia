@@ -9,6 +9,7 @@
 #define AR_TO_ROM_LEN 12
 #define MAX_STRUCT_ELEM_LEN 3
 #define ROM_TO_AR_LEN 6
+#define SYSTEM_BASE 10
 #define ROMAN_REGEXR "^M{0,3}(CM|CD|D?C{0,3})(XC|XL|L?X{0,3})(IX|IV|V?I{0,3})\n$"
 
 typedef struct
@@ -98,7 +99,7 @@ int validate_input(char *user_input, int input_size)
         return 0;
       }
     }
-    int converted = (int)strtol(user_input, &errptr, 10);
+    int converted = (int)strtol(user_input, &errptr, SYSTEM_BASE);
     if (converted > MAX_ARABIC || converted == 0)
     {
       return 0;
