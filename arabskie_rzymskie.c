@@ -32,7 +32,7 @@ int is_arabic(char first_char)
 void arabic_to_roman(char *user_input, AR_TO_ROM *rz)
 {
   char *errptr;
-  int input_converted = (int)strtol(user_input, &errptr, 10);
+  int input_converted = (int)strtol(user_input, &errptr, SYSTEM_BASE);
   char output[BASE_INPUT_SIZE] = {};
   char *roman_from_struct;
   int output_current_idx = 0;
