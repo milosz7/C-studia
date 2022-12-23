@@ -6,6 +6,11 @@
 #define SYSTEM_BASE 10
 #define MAX_FACTORIAL_LENGTH 3
 
+void clear()
+{
+  while ((getchar()) != '\n');
+}
+
 int reset()
 {
   char input;
@@ -15,12 +20,13 @@ int reset()
     scanf(" %c", &input);
     if (input == 'y')
     {
-      while ((getchar()) != '\n')
-        ;
+      clear();
       break;
     }
-    if (input == 'n')
+    if (input == 'n') {
       exit(0);
+    }
+    clear();
     printf("Nieprawidłowa operacja!\n");
   } while (1);
 }
