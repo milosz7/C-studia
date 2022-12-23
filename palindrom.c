@@ -48,7 +48,7 @@ int main()
     while (input_len < 2) {
       printf("Podaj frazę aby sprawdzić czy jest palindromem:\n");
       input_len = getline(&user_input, &input_size, stdin);
-      if (input_len == 1) {
+      if (input_len < 2) {
         printf("Niepoprawny argument!\n");
       }
     }
