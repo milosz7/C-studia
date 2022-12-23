@@ -162,13 +162,10 @@ int main()
       is_valid_number = regexec(&regexr, word_ptr, 0, NULL, 0);
       regfree(&regexr);
 
-      if (*word_ptr == '-')
+      if (*word_ptr == '-' && !(word_ptr + 1)) // null check
       {
-        if (!(word_ptr + 1)) // null check
-        {
           perform_two_operand_stack_operation(stack, current_stack_idx, *word_ptr);
           current_stack_idx--;
-        }
       }
 
       if (strchr(operations_without_subtraction, *word_ptr) != NULL)
