@@ -8,8 +8,8 @@
 #define BASE_INPUT_SIZE 16
 #define CHUNK_SIZE 16
 #define SYSTEM_BASE 10
-#define NUMBERS_REGEXR "^(-?[0-9]+)?\\.?([0-9]+)?\n?$"
-#define VALID_INPUT_REGEXR "(^[+/*lcs^]|\\-$)|(^((-?[0-9]+)?\\.?([0-9]+)?)$)\n?"
+#define NUMBERS_REGEXR "^(-?[0-9]+)?\\.?([0-9]+)?$"
+#define VALID_INPUT_REGEXR "(^[+/*lcs^]|\\-$)|(^((-?[0-9]+)?\\.?([0-9]+)?)$)"
 
 void clear()
 {
