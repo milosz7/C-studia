@@ -3,10 +3,39 @@
 #include <string.h>
 #include <ctype.h>
 #include <math.h>
+#include <regex.h>
 
 #define BASE_INPUT_SIZE 16
 #define CHUNK_SIZE 16
 #define SYSTEM_BASE 10
+#define NUMBERS_REGEXR "^-?([0-9]+)?\\.?([0-9]+)?\n?$"
+
+void clear()
+{
+  while ((getchar()) != '\n')
+    ;
+}
+
+int reset()
+{
+  char input;
+  do
+  {
+    printf("Czy chcesz spróbować jeszcze raz? y/n\n");
+    scanf(" %c", &input);
+    if (input == 'y')
+    {
+      clear();
+      break;
+    }
+    if (input == 'n')
+    {
+      exit(0);
+    }
+    clear();
+    printf("Nieprawidłowa operacja!\n");
+  } while (1);
+}
 
 void throw_error(char *message)
 {
@@ -97,78 +126,80 @@ void print_help()
 
 int main()
 {
-  size_t input_size = BASE_INPUT_SIZE;
-  char *user_input = (char *)malloc(input_size);
-  char separator[] = " \n";
-  char operations_without_subtraction[] = "*^/+";
-  char single_arg_operations[] = "lcs";
-  int chunks = 1;
-  int stack_size = chunks * sizeof(int) * CHUNK_SIZE;
-  double *stack = (double *)malloc(stack_size);
-  int current_stack_idx = -1;
-  int input_len = -1;
-
-  print_help();
-  
-  input_len = getline(&user_input, &input_size, stdin);
-
-  char *word_ptr = strtok(user_input, separator);
-
-  while (word_ptr != NULL)
+  do
   {
-    if (current_stack_idx == (stack_size) / sizeof(double) - 1)
-    {
-      chunks++;
-      stack_size = chunks * sizeof(double) * CHUNK_SIZE;
-      stack = (double *)realloc(stack, stack_size);
-    }
-    
-    char *endptr;
+    size_t input_size = BASE_INPUT_SIZE;
+    char *user_input = (char *)malloc(input_size);
+    char separator[] = " \n";
+    char operations_without_subtraction[] = "*^/+";
+    char single_arg_operations[] = "lcs";
+    int chunks = 1;
+    int stack_size = chunks * sizeof(int) * CHUNK_SIZE;
+    double *stack = (double *)malloc(stack_size);
+    int current_stack_idx = -1;
+    int input_len = -1;
 
-    if (isdigit(*word_ptr))
+    print_help();
+
+    input_len = getline(&user_input, &input_size, stdin);
+
+    char *word_ptr = strtok(user_input, separator);
+
+    while (word_ptr != NULL)
     {
-      for (int i = 1; *(word_ptr + i); i++)
+      if (current_stack_idx == (stack_size) / sizeof(double) - 1)
       {
-        if (!isdigit(*(word_ptr + i)))
+        chunks++;
+        stack_size = chunks * sizeof(double) * CHUNK_SIZE;
+        stack = (double *)realloc(stack, stack_size);
+      }
+
+      char *endptr;
+      int is_valid_number;
+      regex_t regexr;
+
+      is_valid_number = regcomp(&regexr, NUMBERS_REGEXR, REG_EXTENDED);
+      is_valid_number = regexec(&regexr, word_ptr, 0, NULL, 0);
+      regfree(&regexr);
+
+      if (*word_ptr == '-')
+      {
+        if (!(word_ptr + 1)) // null check
         {
-          throw_error("Nieprawidłowe wejście!");
+          perform_two_operand_stack_operation(stack, current_stack_idx, *word_ptr);
+          current_stack_idx--;
         }
       }
-      current_stack_idx++;
-      *(stack + current_stack_idx) = strtod(word_ptr, &endptr);
-    }
 
-    if (*word_ptr == '-')
-    {
-      if (isdigit(word_ptr[1]))
-      {
-        current_stack_idx++;
-        *(stack + current_stack_idx) = strtod(&word_ptr[1], &endptr) * -1;
-      }
-      if (!(word_ptr + 1)) // null check
+      if (strchr(operations_without_subtraction, *word_ptr) != NULL)
       {
         perform_two_operand_stack_operation(stack, current_stack_idx, *word_ptr);
         current_stack_idx--;
       }
+
+      if (strchr(single_arg_operations, *word_ptr) != NULL)
+      {
+        perform_one_operand_stack_operation(stack, current_stack_idx, *word_ptr);
+      }
+
+      if (is_valid_number != REG_NOMATCH)
+      {
+        current_stack_idx++;
+        *(stack + current_stack_idx) = strtod(word_ptr, &endptr);
+      }
+
+      word_ptr = strtok(NULL, separator);
     }
 
-    if (strchr(operations_without_subtraction, *word_ptr) != NULL)
+    if (current_stack_idx != 0)
     {
-      perform_two_operand_stack_operation(stack, current_stack_idx, *word_ptr);
-      current_stack_idx--;
+      throw_error("Nieprawidłowa operacja.");
     }
+    
+    printf("Wynik: %f\n", *(stack));
+    free(stack);
+    free(user_input);
+    reset();
 
-    if (strchr(single_arg_operations, *word_ptr) != NULL) {
-      perform_one_operand_stack_operation(stack, current_stack_idx, *word_ptr);
-    }
-    word_ptr = strtok(NULL, separator);
-  }
-
-  if (current_stack_idx != 0)
-  {
-    throw_error("Nieprawidłowa operacja.");
-  }
-
-  printf("Wynik: %f\n", *(stack));
-  exit(0);
+  } while (1);
 }
