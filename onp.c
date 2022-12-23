@@ -8,7 +8,10 @@
 #define BASE_INPUT_SIZE 16
 #define CHUNK_SIZE 16
 #define SYSTEM_BASE 10
-#define NUMBERS_REGEXR "^-?([0-9]+)?\\.?([0-9]+)?\n?$"
+// #define NUMBERS_REGEXR "^(-?[0-9]+)?\\.?([0-9]+)?\n?$"
+// "(-?[0-9]+)?\.?([0-9]+)?"
+#define NUMBERS_REGEXR "^(-?[0-9]+)?\\.?([0-9]+)?\n?$"
+#define VALID_INPUT_REGEXR "(^[+/*lcs^]|\\-$)|(^((-?[0-9]+)?\\.?([0-9]+)?)$)\n?"
 
 void clear()
 {
@@ -131,7 +134,7 @@ int main()
     size_t input_size = BASE_INPUT_SIZE;
     char *user_input = (char *)malloc(input_size);
     char separator[] = " \n";
-    char operations_without_subtraction[] = "*^/+";
+    char two_arg_operations[] = "*^/+";
     char single_arg_operations[] = "lcs";
     int chunks = 1;
     int stack_size = chunks * sizeof(int) * CHUNK_SIZE;
@@ -155,20 +158,29 @@ int main()
       }
 
       char *endptr;
-      int is_valid_number;
-      regex_t regexr;
+      int is_valid_number, is_valid_input;
+      regex_t number_regexr, input_regexr;
 
-      is_valid_number = regcomp(&regexr, NUMBERS_REGEXR, REG_EXTENDED);
-      is_valid_number = regexec(&regexr, word_ptr, 0, NULL, 0);
-      regfree(&regexr);
+      is_valid_input = regcomp(&input_regexr, VALID_INPUT_REGEXR, REG_EXTENDED);
+      is_valid_input = regexec(&input_regexr, word_ptr, 0, NULL, 0);
+      regfree(&input_regexr);
 
-      if (*word_ptr == '-' && !(word_ptr + 1)) // null check
+      if (is_valid_input == REG_NOMATCH)
       {
-          perform_two_operand_stack_operation(stack, current_stack_idx, *word_ptr);
-          current_stack_idx--;
+        throw_error("Nieprawidłowe wejście!");
       }
 
-      if (strchr(operations_without_subtraction, *word_ptr) != NULL)
+      is_valid_number = regcomp(&number_regexr, NUMBERS_REGEXR, REG_EXTENDED);
+      is_valid_number = regexec(&number_regexr, word_ptr, 0, NULL, 0);
+      regfree(&number_regexr);
+
+      if (*word_ptr == '-' && !*(word_ptr + 1))
+      {
+        perform_two_operand_stack_operation(stack, current_stack_idx, *word_ptr);
+        current_stack_idx--;
+      }
+
+      if (strchr(two_arg_operations, *word_ptr) != NULL)
       {
         perform_two_operand_stack_operation(stack, current_stack_idx, *word_ptr);
         current_stack_idx--;
@@ -192,7 +204,7 @@ int main()
     {
       throw_error("Nieprawidłowa operacja.");
     }
-    
+
     printf("Wynik: %f\n", *(stack));
     free(stack);
     free(user_input);
