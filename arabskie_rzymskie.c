@@ -6,9 +6,6 @@
 
 #define BASE_INPUT_SIZE 15
 #define MAX_ARABIC 3999
-#define AR_TO_ROM_LEN 12
-#define MAX_STRUCT_ELEM_LEN 3
-#define ROM_TO_AR_LEN 6
 #define SYSTEM_BASE 10
 #define ROMAN_REGEXR "^M{0,3}(CM|CD|D?C{0,3})(XC|XL|L?X{0,3})(IX|IV|V?I{0,3})\n$"
 
@@ -29,7 +26,7 @@ int is_arabic(char first_char)
   return isdigit(first_char);
 }
 
-void arabic_to_roman(char *user_input, AR_TO_ROM *rz)
+void arabic_to_roman(char *user_input, AR_TO_ROM *rz, int struct_len)
 {
   char *errptr;
   int input_converted = (int)strtol(user_input, &errptr, SYSTEM_BASE);
@@ -37,12 +34,12 @@ void arabic_to_roman(char *user_input, AR_TO_ROM *rz)
   char *roman_from_struct;
   int output_current_idx = 0;
   int length = 0;
-  for (int i = 0; i < AR_TO_ROM_LEN + 1; i++)
+  for (int i = 0; i < struct_len; i++)
   {
-    int current_arabic = (rz + AR_TO_ROM_LEN - i)->arab;
+    int current_arabic = (rz + struct_len - 1 - i)->arab;
     while (input_converted - current_arabic >= 0)
     {
-      roman_from_struct = (rz + AR_TO_ROM_LEN - i)->rzym;
+      roman_from_struct = (rz + struct_len - 1 - i)->rzym;
       for (; roman_from_struct[length]; length++)
         ;
       for (int j = 0; j < length; j++)
@@ -56,7 +53,7 @@ void arabic_to_roman(char *user_input, AR_TO_ROM *rz)
   printf("Wynik: %s\n", output);
 }
 
-void roman_to_arabic(char *user_input, ROM_TO_AR *rz, int input_len)
+void roman_to_arabic(char *user_input, ROM_TO_AR *rz, int input_len, int struct_len)
 {
   int result = 0;
   int last_value = 0;
@@ -64,7 +61,7 @@ void roman_to_arabic(char *user_input, ROM_TO_AR *rz, int input_len)
   for (int i = input_len; i >= 0; i--)
   {
     char current = user_input[i];
-    for (int j = 0; j < ROM_TO_AR_LEN + 1; j++)
+    for (int j = 0; j < struct_len; j++)
     {
       if (current == ((rz + j)->rzym))
       {
@@ -154,11 +151,13 @@ int main()
     }
     if (is_arabic(user_input[0]))
     {
-      arabic_to_roman(user_input, ar_to_rom);
+      int struct_len = (int)sizeof(ar_to_rom) / sizeof(ar_to_rom[0]);
+      arabic_to_roman(user_input, ar_to_rom, struct_len);
     }
     else
     {
-      roman_to_arabic(user_input, rom_to_ar, input_len - 1);
+      int struct_len = (int)sizeof(rom_to_ar) / sizeof(rom_to_ar[0]);
+      roman_to_arabic(user_input, rom_to_ar, input_len - 1, struct_len);
     }
     return 0;
   } while (1);
