@@ -252,7 +252,7 @@ int main()
     double *stack = (double *)malloc(stack_size);
     double result = 0;
     int current_stack_idx = -1;
-    double x_start, x_end, x_jump, x_range, x_occurences;
+    double x_start, x_end, x_range, x_occurences, x_jump = 0;
 
     print_help();
 
@@ -265,22 +265,22 @@ int main()
     }
 
     x_start = get_value("Podaj początek zakresu parametrów funkcji do obliczenia całki:");
-    x_end = get_value("Podaj koniec zakresu parametrów funkcji do obliczenia całki:");
 
-    if (x_start >= x_end)
+    while (x_start >= x_end)
     {
-      printf("Początek zakresu musi być liczbą mniejszą od liczby końca zakresu!\n");
       x_end = get_value("Podaj koniec zakresu parametrów funkcji do obliczenia całki:");
+
+      if (x_start >= x_end)
+        printf("Początek zakresu musi być liczbą mniejszą od liczby końca zakresu!\n");
     }
 
     x_range = fabs(x_end) - fabs(x_start);
 
-    x_jump = get_value("Podaj wartość o jaką będą zwiększane kolejne argumenty funkcji:");
-
-    if (x_jump > x_range || x_jump <= 0)
+    while (x_jump > x_range || x_jump <= 0)
     {
-      printf("Wartość o jaką będą zwiększane argumenty musi być liczbą większą od zera i musi być mniejsza lub równa odległości między początkiem a końcem przedziału!\n");
       x_jump = get_value("Podaj wartość o jaką będą zwiększane kolejne argumenty funkcji:");
+      if (x_jump > x_range || x_jump <= 0)
+        printf("Wartość o jaką będą zwiększane argumenty musi być liczbą większą od zera i musi być mniejsza lub równa odległości między początkiem a końcem przedziału!\n");
     }
 
     double rect_x, rect_y, partial, remaining_range;
@@ -289,7 +289,7 @@ int main()
     {
       remaining_range = fabs(x_end) - fabs(x_start);
 
-      char *input_copy[strlen(user_input)];
+      char input_copy[strlen(user_input)];
       strcpy(input_copy, user_input);
 
       rect_y = evaluate_function(input_copy, x_start);
@@ -299,7 +299,6 @@ int main()
       result = rect_y > 0 ? result + partial : result - partial;
 
       x_start += x_jump;
-
     }
 
     printf("Całka z zadanej funkcji na podanym przedziale wynosi: %f\n", result);
