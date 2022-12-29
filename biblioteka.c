@@ -10,6 +10,8 @@
 
 // #define ARR_SIZE(arr) (sizeof(arr) / sizeof(arr[0]))
 #define UUID_LEN 36
+#define MIN_INPUT_LEN 3
+#define DATA_CHUNK_SIZE 32
 
 typedef struct Book
 {
@@ -29,6 +31,23 @@ char *generate_id()
   uuid_unparse_lower(binary_uuid, uuid);
 
   return uuid;
+}
+
+void update_field(char **book_field, char *data)
+{
+  int data_len = strlen(data);
+  *book_field = (char *)malloc(data_len);
+  strcpy(*book_field, data);
+}
+
+void print_prompt(char *print_param)
+{
+  printf("Podaj %s książki, którą chcesz dodać do bazy danych:\n", print_param);
+}
+
+void message_too_short()
+{
+  printf("Podane dane nie spełniają wymogu co do długości (minimum %d znaków).\n", MIN_INPUT_LEN);
 }
 
 void print_data(Book *book)
@@ -67,42 +86,102 @@ void get_all(Book *book)
   }
 }
 
+Book *get_last(Book *book)
+{
+  if (book->next == NULL)
+  {
+    printf("here %s", book->title);
+    return book;
+  }
+  get_last(book->next);
+}
+
+int get_user_input(char *input_ref, size_t *input_size)
+{
+  int input_len = getline(&input_ref, input_size, stdin);
+  return input_len;
+}
+
+void add_new(Book *head)
+{
+  Book *new_book, *last;
+
+  new_book = (Book *)malloc(sizeof(*new_book));
+
+  int author_len = 0, title_len = 0, genre_len = 0;
+  last = get_last(head);
+  size_t author_inp_size = DATA_CHUNK_SIZE;
+  size_t title_inp_size = DATA_CHUNK_SIZE;
+  size_t genre_inp_size = DATA_CHUNK_SIZE;
+
+  char *author_input = (char *)malloc(author_inp_size);
+  char *title_input = (char *)malloc(title_inp_size);
+  char *genre_input = (char *)malloc(genre_inp_size);
+
+  print_data(last);
+
+  while (title_len < MIN_INPUT_LEN + 1)
+  {
+    print_prompt("tytuł");
+    title_len = get_user_input(title_input, &title_inp_size);
+    *(title_input + title_len - 1) = '\0';
+    if (title_len < MIN_INPUT_LEN + 1)
+      message_too_short();
+  }
+
+  while (author_len < MIN_INPUT_LEN + 1)
+  {
+    print_prompt("autora");
+    author_len = get_user_input(author_input, &author_inp_size);
+    *(author_input + author_len - 1) = '\0';
+    printf("%d", author_len);
+    if (author_len < MIN_INPUT_LEN + 1)
+      message_too_short();
+  }
+
+  while (genre_len < MIN_INPUT_LEN + 1)
+  {
+    print_prompt("gatunek");
+    genre_len = get_user_input(genre_input, &genre_inp_size);
+    *(genre_input + genre_len - 1) = '\0';
+    if (genre_len < MIN_INPUT_LEN + 1)
+      message_too_short();
+  }
+
+  update_field(&new_book->title, title_input);
+  update_field(&new_book->author, author_input);
+  update_field(&new_book->genre, genre_input);
+  update_field(&new_book->id, generate_id());
+  new_book->is_borrowed = 0;
+  new_book->next = NULL;
+
+  last->next = new_book;
+}
+
 Book *create_sample_data()
 {
   Book *head, *second, *third;
 
   head = (Book *)malloc(sizeof(*head));
-  head->author = (char *)malloc(strlen("J.K. Rowling"));
-  strcpy(head->author, "J.K. Rowling");
-  head->title = (char *)malloc(strlen("Harry Potter"));
-  strcpy(head->title, "Harry Potter");
-  head->genre = (char *)malloc(strlen("Fantasy"));
-  strcpy(head->genre, "Fantasy");
+  update_field(&head->author, "J.K Rowling");
+  update_field(&head->title, "Harry Potter");
+  update_field(&head->genre, "Fantasy");
+  update_field(&head->id, generate_id());
   head->is_borrowed = 0;
-  head->id = (char *)malloc(UUID_LEN + 1);
-  strcpy(head->id, generate_id());
 
   second = (Book *)malloc(sizeof(*second));
-  second->author = (char *)malloc(strlen("George Orwell"));
-  strcpy(second->author, "George Orwell");
-  second->title = (char *)malloc(strlen("1984"));
-  strcpy(second->title, "1984");
-  second->genre = (char *)malloc(strlen("Sci-fi"));
-  strcpy(second->genre, "Sci-fi");
+  update_field(&second->author, "George Orwell");
+  update_field(&second->title, "1984");
+  update_field(&second->genre, "Sci-fi");
+  update_field(&second->id, generate_id());
   second->is_borrowed = 0;
-  second->id = (char *)malloc(UUID_LEN + 1);
-  strcpy(second->id, generate_id());
 
   third = (Book *)malloc(sizeof(*third));
-  third->author = (char *)malloc(strlen("Dmitry Glukhovsky"));
-  strcpy(third->author, "Dmitry Glukhovsky");
-  third->title = (char *)malloc(strlen("Futu.re"));
-  strcpy(third->title, "Futu.re");
-  third->genre = (char *)malloc(strlen("Sci-fi"));
-  strcpy(third->genre, "Sci-fi");
+  update_field(&third->author, "Dmitry Glukhovsky");
+  update_field(&third->title, "Futu.re");
+  update_field(&third->genre, "Sci-fi");
+  update_field(&third->id, generate_id());
   third->is_borrowed = 1;
-  third->id = (char *)malloc(UUID_LEN + 1);
-  strcpy(third->id, generate_id());
 
   head->next = second;
   second->next = third;
@@ -114,9 +193,10 @@ Book *create_sample_data()
 
 int main()
 {
-  Book *head;
+  Book *head, *test;
   head = create_sample_data();
+  add_new(head);
   get_all(head);
   // get_by_id("123", head);
-  // printf("%s\n", head->author);
+  // printf("%s\n", test->author);
 }
