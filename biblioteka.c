@@ -8,7 +8,6 @@
 // aby skompilować należy użyć flagi "-luuid"
 // program został napisany na ubuntu 22.04
 
-// #define ARR_SIZE(arr) (sizeof(arr) / sizeof(arr[0]))
 #define UUID_LEN 36
 #define MIN_INPUT_LEN 3
 #define DATA_CHUNK_SIZE 32
@@ -251,7 +250,6 @@ Book *create_sample_data()
   second->next = third;
   third->next = NULL;
 
-  // printf("next: %s\n", head->next->next->author);
   return head;
 }
 
@@ -303,6 +301,4 @@ int main()
 
   add_new(head);
   print_all(head);
-  // print_by_id("123", head);
-  // printf("%s\n", test->author);
 }
