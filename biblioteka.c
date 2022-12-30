@@ -100,7 +100,7 @@ void print_data(Book *book)
   printf("Dostępność: %s\n", (!book->is_borrowed) ? "Tak" : "Nie");
 }
 
-void lowercase_phrase(char *phrase, int len)
+void phrase_to_lower(char *phrase, int len)
 {
   for (int i = 0; i < len; i++)
     *(phrase + i) = tolower(*(phrase + i));
@@ -140,33 +140,48 @@ void print_by_id(Book *book)
   free(passed_id);
 }
 
-void print_by_title(Book *book)
+int print_by_phrase(Book *book, char operation)
 {
   size_t search_inp_size = DATA_CHUNK_SIZE;
   int is_found = false, input_len;
   char *phrase_to_find = (char *)malloc(search_inp_size);
 
-  printf("Podaj tytuł (lub jego część) książki jaką chcesz wyszukać (wielkość liter nie ma znaczenia)\n");
   input_len = get_user_input(phrase_to_find, &search_inp_size);
 
-  lowercase_phrase(phrase_to_find, input_len);
+  phrase_to_lower(phrase_to_find, input_len);
 
   while (book != NULL)
   {
-    char *lowercase_title = (char *)malloc(strlen(book->title) + 1);
-    strcpy(lowercase_title, book->title);
-    lowercase_phrase(lowercase_title, strlen(lowercase_title) + 1);
-    if (strstr(lowercase_title, phrase_to_find) != NULL)
+    char *lowercase_phrase;
+    if (operation == GET_BY_TITLE)
+    {
+      lowercase_phrase = (char *)malloc(strlen(book->title) + 1);
+      strcpy(lowercase_phrase, book->title);
+    }
+
+    if (operation == GET_BY_GENRE)
+    {
+      lowercase_phrase = (char *)malloc(strlen(book->genre) + 1);
+      strcpy(lowercase_phrase, book->genre);
+    }
+
+    if (operation == GET_BY_AUTHOR)
+    {
+      lowercase_phrase = (char *)malloc(strlen(book->author) + 1);
+      strcpy(lowercase_phrase, book->author);
+    }
+
+    phrase_to_lower(lowercase_phrase, strlen(lowercase_phrase) + 1);
+    if (strstr(lowercase_phrase, phrase_to_find) != NULL)
     {
       print_data(book);
       is_found = true;
     }
-    free(lowercase_title);
+    free(lowercase_phrase);
     book = book->next;
   }
 
-  if (!is_found)
-    printf("Nie znalezniono książek których tytuł zawiera podaną frazę!\n");
+  return is_found;
 }
 
 void print_all(Book *book)
@@ -436,6 +451,7 @@ int main()
   Book *head, *test;
   head = create_sample_data();
   print_help();
+  int is_found;
 
   do
   {
@@ -466,8 +482,23 @@ int main()
     case STATUS_CHANGE:
       change_status(head);
       break;
+    case GET_BY_GENRE:
+      printf("Podaj nazwę gatunku (lub jego część) książki jaką chcesz wyszukać (wielkość liter nie ma znaczenia)\n");
+      is_found = print_by_phrase(head, GET_BY_GENRE);
+      if (!is_found)
+        printf("Nie znaleziono książek zawierających podaną frazę w nazwie gatunku.\n");
+      break;
     case GET_BY_TITLE:
-      print_by_title(head);
+      printf("Podaj tytuł (lub jego część) książki jaką chcesz wyszukać (wielkość liter nie ma znaczenia)\n");
+      is_found = print_by_phrase(head, GET_BY_TITLE);
+      if (!is_found)
+        printf("Nie znaleziono książek zawierających podaną frazę w tytule.\n");
+      break;
+    case GET_BY_AUTHOR:
+      printf("Podaj imię i nazwisko autora (lub jego część) książki jaką chcesz wyszukać (wielkość liter nie ma znaczenia)\n");
+      is_found = print_by_phrase(head, GET_BY_AUTHOR);
+      if (!is_found)
+        printf("Nie znaleziono książek zawierających podaną frazę w imieniu lub nazwisku autora.\n");
       break;
     case PRINT_HELP:
       print_help();
@@ -480,6 +511,5 @@ int main()
       print_help();
       break;
     }
-
   } while (1);
 }
