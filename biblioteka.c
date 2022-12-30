@@ -65,6 +65,7 @@ void print_help()
   printf("\"3\" - dodaj nową książkę do bazy danych,\n");
   printf("\"4\" - edytuj dane książki w bazie danych,\n");
   printf("\"5\" - usuń dane książki z bazy danych,\n");
+  printf("\"6\" - zmień status dostępności książki,\n");
   printf("\"q\" - zakończ działanie programu,\n");
 }
 
@@ -88,6 +89,7 @@ char *input_id()
 
 void print_by_id(Book *book)
 {
+  printf("Podaj ID książki którą chcesz wyszukać:\n");
   char *passed_id = input_id();
 
   while (book != NULL)
@@ -192,7 +194,7 @@ Book *add_new(Book *head)
 Book *delete_data(Book *book)
 {
   printf("Podaj ID książki, którą chcesz usunąć:\n");
-  char passed_id * = input_id();
+  char *passed_id = input_id();
 
   Book *to_remove, *prev, *head;
   head = book;
@@ -206,7 +208,7 @@ Book *delete_data(Book *book)
     return head;
   }
 
-  while (book != NULL)
+  while (book->next != NULL)
   {
     if (strcmp(book->next->id, passed_id) == 0)
     {
@@ -218,8 +220,15 @@ Book *delete_data(Book *book)
     }
     book = book->next;
   }
-  free(passed_id);
+  printf("Książka o podanym ID nie istnieje!\n");
+  return head;
+  // return
+  // free(passed_id);
 }
+
+// void change_status() {
+//   printf("")
+// }
 
 Book *create_sample_data()
 {
