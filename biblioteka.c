@@ -65,6 +65,8 @@ void print_help()
   printf("\"2\" - znajdź książkę po ID,\n");
   printf("\"3\" - dodaj nową książkę do bazy danych,\n");
   printf("\"4\" - edytuj dane książki w bazie danych,\n");
+  printf("\"5\" - usuń dane książki z bazy danych,\n");
+  printf("\"q\" - zakończ działanie programu,\n");
 }
 
 void print_data(Book *book)
@@ -107,6 +109,8 @@ void get_all(Book *book)
 
 Book *get_last(Book *book)
 {
+  if (book == NULL)
+    return NULL;
   if (book->next == NULL)
     return book;
   get_last(book->next);
@@ -118,18 +122,18 @@ int get_user_input(char *input_ref, size_t *input_size)
   return input_len;
 }
 
-void add_new(Book *head)
+Book *add_new(Book *head)
 {
   Book *new_book, *last;
 
   new_book = (Book *)malloc(sizeof(*new_book));
 
   int author_len = 0, title_len = 0, genre_len = 0;
-  last = get_last(head);
   size_t author_inp_size = DATA_CHUNK_SIZE;
   size_t title_inp_size = DATA_CHUNK_SIZE;
   size_t genre_inp_size = DATA_CHUNK_SIZE;
 
+  last = get_last(head);
   char *author_input = (char *)malloc(author_inp_size);
   char *title_input = (char *)malloc(title_inp_size);
   char *genre_input = (char *)malloc(genre_inp_size);
@@ -168,10 +172,44 @@ void add_new(Book *head)
   new_book->is_borrowed = 0;
   new_book->next = NULL;
 
-  last->next = new_book;
+  if (last)
+    last->next = new_book;
 
   printf("Dodano nową książkę:\n");
   print_data(new_book);
+
+  return (last == NULL) ? new_book : head;
+}
+
+Book *delete_data(Book *book)
+{
+  printf("Podaj ID książki, którą chcesz usunąć:\n");
+  char passed_id[UUID_LEN + 1];
+  fgets(passed_id, UUID_LEN + 1, stdin);
+  clear_buffer(passed_id);
+
+  Book *to_remove, *prev, *head;
+  head = book;
+
+  if (strcmp(head->id, passed_id) == 0)
+  {
+    to_remove = head;
+    head = book->next;
+    free(to_remove);
+    return head;
+  }
+
+  while (book != NULL)
+  {
+    if (strcmp(book->next->id, passed_id) == 0)
+    {
+      to_remove = book->next;
+      book->next = (to_remove->next != NULL) ? to_remove->next : NULL;
+      free(to_remove);
+      return head;
+    }
+    book = book->next;
+  }
 }
 
 Book *create_sample_data()
@@ -209,24 +247,6 @@ Book *create_sample_data()
 
 void perform_operation(char user_choice, Book *head)
 {
-  switch (user_choice)
-  {
-  case '1':
-    get_all(head);
-    break;
-  case '2':
-    get_by_id(head);
-    break;
-  case '3':
-    add_new(head);
-  case 'h':
-    print_help();
-    break;
-  default:
-    printf("Nieprawidłowa operacja.\n");
-    print_help();
-    break;
-  }
 }
 
 int main()
@@ -242,7 +262,32 @@ int main()
     printf("Wybierz operację jaką chcesz przeprowadzić: (h - wyświetl pomoc)\n");
     fgets(user_choice, 2, stdin);
     clear_buffer(user_choice);
-    perform_operation(*user_choice, head);
+
+    switch (*user_choice)
+    {
+    case '1':
+      get_all(head);
+      break;
+    case '2':
+      get_by_id(head);
+      break;
+    case '3':
+      head = add_new(head);
+      break;
+    case '5':
+      head = delete_data(head);
+      break;
+    case 'h':
+      print_help();
+      break;
+    case 'q':
+      printf("Opuszczanie programu...\n");
+      exit(0);
+    default:
+      printf("Nieprawidłowa operacja.\n");
+      print_help();
+      break;
+    }
 
   } while (1);
 
