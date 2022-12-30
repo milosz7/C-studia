@@ -11,6 +11,8 @@
 #define UUID_LEN 36
 #define MIN_INPUT_LEN 3
 #define DATA_CHUNK_SIZE 32
+#define true 1
+#define false 0
 
 typedef struct Book
 {
@@ -235,7 +237,7 @@ void change_status(Book *book)
   {
     if (strcmp(book->id, passed_id) == 0)
     {
-      book->is_borrowed = (book->is_borrowed) ? 0 : 1;
+      book->is_borrowed = (book->is_borrowed) ? false : true;
       is_found = 1;
       printf("Zmieniono status książki o id %s na: %s\n",
         passed_id, (book->is_borrowed) ? "niedostępna" : "dostępna");
@@ -257,21 +259,21 @@ Book *create_sample_data()
   update_field(&head->title, "Harry Potter");
   update_field(&head->genre, "Fantasy");
   update_field(&head->id, generate_id());
-  head->is_borrowed = 0;
+  head->is_borrowed = false;
 
   second = (Book *)malloc(sizeof(*second));
   update_field(&second->author, "George Orwell");
   update_field(&second->title, "1984");
   update_field(&second->genre, "Sci-fi");
   update_field(&second->id, generate_id());
-  second->is_borrowed = 0;
+  second->is_borrowed = false;
 
   third = (Book *)malloc(sizeof(*third));
   update_field(&third->author, "Dmitry Glukhovsky");
   update_field(&third->title, "Futu.re");
   update_field(&third->genre, "Sci-fi");
   update_field(&third->id, generate_id());
-  third->is_borrowed = 1;
+  third->is_borrowed = true;
 
   head->next = second;
   second->next = third;
