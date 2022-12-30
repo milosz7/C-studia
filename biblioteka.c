@@ -4,6 +4,7 @@
 #include <string.h>
 #include <time.h>
 #include <uuid/uuid.h>
+#include <ctype.h>
 
 // aby skompilować należy użyć flagi "-luuid"
 // program został napisany na ubuntu 22.04
@@ -68,7 +69,10 @@ void print_help()
   printf("\"4\" - edytuj dane książki w bazie danych,\n");
   printf("\"5\" - usuń dane książki z bazy danych,\n");
   printf("\"6\" - zmień status dostępności książki,\n");
-  printf("\"q\" - zakończ działanie programu,\n");
+  printf("\"7\" - wyszukaj książki po gatunku,\n");
+  printf("\"8\" - wyszukaj książki po autorze,\n");
+  printf("\"9\" - wyszukaj książkę o określonym tytule,\n");
+  printf("\"q\" - zakończ działanie programu\n");
 }
 
 void print_data(Book *book)
@@ -79,6 +83,19 @@ void print_data(Book *book)
   printf("Autor: %s,\n", book->author);
   printf("Gatunek: %s,\n", book->genre);
   printf("Dostępność: %s\n", (!book->is_borrowed) ? "Tak" : "Nie");
+}
+
+void lowercase_phrase(char *phrase, int len)
+{
+  for (int i = 0; i < len; i++)
+    *(phrase + i) = tolower(*(phrase + i));
+}
+
+int get_user_input(char *input_ref, size_t *input_size)
+{
+  int input_len = getline(&input_ref, input_size, stdin);
+  *(input_ref + input_len - 1) = '\0';
+  return input_len;
 }
 
 char *input_id()
@@ -108,6 +125,35 @@ void print_by_id(Book *book)
   free(passed_id);
 }
 
+void print_by_title(Book *book)
+{
+  size_t search_inp_size = DATA_CHUNK_SIZE;
+  int is_found = false, input_len;
+  char *phrase_to_find = (char *)malloc(search_inp_size);
+
+  printf("Podaj tytuł (lub jego część) książki jaką chcesz wyszukać (wielkość liter nie ma znaczenia)\n");
+  input_len = get_user_input(phrase_to_find, &search_inp_size);
+
+  lowercase_phrase(phrase_to_find, input_len);
+
+  while (book != NULL)
+  {
+    char *lowercase_title = (char *)malloc(strlen(book->title) + 1);
+    strcpy(lowercase_title, book->title);
+    lowercase_phrase(lowercase_title, strlen(lowercase_title) + 1);
+    if (strstr(lowercase_title, phrase_to_find) != NULL)
+    {
+      print_data(book);
+      is_found = true;
+    }
+    free(lowercase_title);
+    book = book->next;
+  }
+
+  if (!is_found)
+    printf("Nie znalezniono książek których tytuł zawiera podaną frazę!\n");
+}
+
 void print_all(Book *book)
 {
   int counter = 0;
@@ -128,13 +174,6 @@ Book *get_last(Book *book)
   if (book->next == NULL)
     return book;
   get_last(book->next);
-}
-
-int get_user_input(char *input_ref, size_t *input_size)
-{
-  int input_len = getline(&input_ref, input_size, stdin);
-  *(input_ref + input_len - 1) = '\0';
-  return input_len;
 }
 
 Book *add_new(Book *head)
@@ -181,7 +220,7 @@ Book *add_new(Book *head)
   update_field(&new_book->author, author_input);
   update_field(&new_book->genre, genre_input);
   update_field(&new_book->id, generate_id());
-  new_book->is_borrowed = 0;
+  new_book->is_borrowed = false;
   new_book->next = NULL;
 
   if (last)
@@ -387,6 +426,7 @@ int main()
   {
     char user_choice[2];
 
+    printf("-------------\n");
     printf("Wybierz operację jaką chcesz przeprowadzić: (h - wyświetl pomoc)\n");
     fgets(user_choice, 2, stdin);
     clear_buffer(user_choice);
@@ -410,6 +450,10 @@ int main()
       break;
     case '6':
       change_status(head);
+      break;
+    case '9':
+      print_by_title(head);
+      break;
     case 'h':
       print_help();
       break;
