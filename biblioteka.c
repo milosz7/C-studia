@@ -231,14 +231,14 @@ void change_status(Book *book)
 {
   printf("Podaj ID książki której status chcesz zmienić:\n");
   char *passed_id = input_id();
-  int is_found = 0;
+  int is_found = false;
 
   while (book != NULL)
   {
     if (strcmp(book->id, passed_id) == 0)
     {
       book->is_borrowed = (book->is_borrowed) ? false : true;
-      is_found = 1;
+      is_found = true;
       printf("Zmieniono status książki o id %s na: %s\n",
         passed_id, (book->is_borrowed) ? "niedostępna" : "dostępna");
     }
