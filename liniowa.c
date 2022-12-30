@@ -7,6 +7,7 @@
 
 #define DOUBLE_INPUT_CHAR_LIMIT 20
 #define NUMBERS_REGEXR "^(-?[0-9]+)?\\.?([0-9]+)?\n?$"
+#define ROOT(a, b) b == 0 ? 0 : (b * -1 / a)
 
 void clear()
 {
@@ -74,7 +75,6 @@ double get_input(char param_symbol)
 
 void main()
 {
-#define miejsce_zerowe(a, b) b == 0 ? 0 : (b * -1 / a)
 
   do
   {
@@ -89,7 +89,7 @@ void main()
       continue;
     }
     b = get_input('b');
-    output = miejsce_zerowe(a, b);
+    output = ROOT(a, b);
     printf("%s%f\n", "Miejsce zerowe: ", output);
     reset();
   } while (1);
