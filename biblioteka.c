@@ -221,14 +221,32 @@ Book *delete_data(Book *book)
     book = book->next;
   }
   printf("Książka o podanym ID nie istnieje!\n");
+  free(passed_id);
   return head;
-  // return
-  // free(passed_id);
 }
 
-// void change_status() {
-//   printf("")
-// }
+void change_status(Book *book)
+{
+  printf("Podaj ID książki której status chcesz zmienić:\n");
+  char *passed_id = input_id();
+  int is_found = 0;
+
+  while (book != NULL)
+  {
+    if (strcmp(book->id, passed_id) == 0)
+    {
+      book->is_borrowed = (book->is_borrowed) ? 0 : 1;
+      is_found = 1;
+      printf("Zmieniono status książki o id %s na: %s\n",
+        passed_id, (book->is_borrowed) ? "niedostępna" : "dostępna");
+    }
+    book = book->next;
+  }
+  if (!is_found)
+  {
+    printf("Książka o podanym ID nie istnieje!\n");
+  }
+}
 
 Book *create_sample_data()
 {
@@ -294,6 +312,8 @@ int main()
     case '5':
       head = delete_data(head);
       break;
+    case '6':
+      change_status(head);
     case 'h':
       print_help();
       break;
