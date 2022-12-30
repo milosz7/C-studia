@@ -190,6 +190,10 @@ Book *add_new(Book *head)
   printf("Dodano nową książkę:\n");
   print_data(new_book);
 
+  free(title_input);
+  free(author_input);
+  free(genre_input);
+
   return (last == NULL) ? new_book : head;
 }
 
@@ -227,6 +231,93 @@ Book *delete_data(Book *book)
   return head;
 }
 
+int is_field_empty(char *input)
+{
+  return strlen(input) == 0;
+}
+
+void update_data(Book *book)
+{
+  printf("Podaj ID książki, którą chcesz edytować:\n");
+  char *passed_id = input_id();
+  int is_found = false;
+  Book *to_edit;
+
+  while (book != NULL)
+  {
+    if (strcmp(book->id, passed_id) == 0)
+    {
+      is_found = true;
+      to_edit = book;
+      break;
+    }
+    book = book->next;
+  }
+
+  if (!is_found)
+  {
+    printf("Książka o podanym ID nie istnieje!\n");
+    return;
+  }
+
+  printf("Dane książki wybranej do edycji:\n");
+  print_data(to_edit);
+
+  int author_len = 0, title_len = 0, genre_len = 0;
+  size_t author_inp_size = DATA_CHUNK_SIZE;
+  size_t title_inp_size = DATA_CHUNK_SIZE;
+  size_t genre_inp_size = DATA_CHUNK_SIZE;
+
+  char *author_input = (char *)malloc(author_inp_size);
+  char *title_input = (char *)malloc(title_inp_size);
+  char *genre_input = (char *)malloc(genre_inp_size);
+
+  while (title_len < MIN_INPUT_LEN + 1)
+  {
+    print_prompt("tytuł");
+    printf("Aby pozostawić pole niezmienione naciśnij enter nie wpisując nic.\n");
+    title_len = get_user_input(title_input, &title_inp_size);
+    if (is_field_empty(title_input))
+      break;
+    if (title_len < MIN_INPUT_LEN + 1)
+      message_too_short();
+  }
+
+  while (author_len < MIN_INPUT_LEN + 1)
+  {
+    print_prompt("autora");
+    author_len = get_user_input(author_input, &author_inp_size);
+    if (is_field_empty(author_input))
+      break;
+    if (author_len < MIN_INPUT_LEN + 1)
+      message_too_short();
+  }
+
+  while (genre_len < MIN_INPUT_LEN + 1)
+  {
+    print_prompt("gatunek");
+    genre_len = get_user_input(genre_input, &genre_inp_size);
+    if (is_field_empty(genre_input))
+      break;
+    if (genre_len < MIN_INPUT_LEN + 1)
+      message_too_short();
+  }
+
+  if (title_len >= MIN_INPUT_LEN + 1)
+    update_field(&book->title, title_input);
+  if (author_len >= MIN_INPUT_LEN + 1)
+    update_field(&book->author, author_input);
+  if (genre_len >= MIN_INPUT_LEN + 1)
+    update_field(&book->genre, genre_input);
+
+  printf("Dane książki wybranej po edycji:\n");
+  print_data(to_edit);
+
+  free(title_input);
+  free(author_input);
+  free(genre_input);
+}
+
 void change_status(Book *book)
 {
   printf("Podaj ID książki której status chcesz zmienić:\n");
@@ -240,7 +331,7 @@ void change_status(Book *book)
       book->is_borrowed = (book->is_borrowed) ? false : true;
       is_found = true;
       printf("Zmieniono status książki o id %s na: %s\n",
-        passed_id, (book->is_borrowed) ? "niedostępna" : "dostępna");
+             passed_id, (book->is_borrowed) ? "niedostępna" : "dostępna");
     }
     book = book->next;
   }
@@ -311,6 +402,9 @@ int main()
     case '3':
       head = add_new(head);
       break;
+    case '4':
+      update_data(head);
+      break;
     case '5':
       head = delete_data(head);
       break;
@@ -329,7 +423,4 @@ int main()
     }
 
   } while (1);
-
-  add_new(head);
-  print_all(head);
 }
