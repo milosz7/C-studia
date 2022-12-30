@@ -2,14 +2,26 @@
 #include <math.h>
 #include <stdlib.h>
 #include <ctype.h>
+#include <regex.h>
+#include <string.h>
+#include <errno.h>
 
 #define DELTA_FORMULA(a, b, c) ((b * b) - (4 * a * c))
 #define LINEAR_FUNCTION_FORMULA(b, c) c == 0 ? 0 : ((c * -1 / b))
+#define NUMBERS_REGEXR "^(-?[0-9]+)?\\.?([0-9]+)?\n?$"
 #define DOUBLE_INPUT_CHAR_LIMIT 20
 
 void clear()
 {
-  while ((getchar()) != '\n');
+  while ((getchar()) != '\n')
+    ;
+}
+
+void clear_buffer(char *input)
+{
+  char clear_buffer[2];
+  while (strchr(input, '\n') == NULL && clear_buffer[0] != '\n')
+    fgets(clear_buffer, 2, stdin);
 }
 
 int reset()
@@ -26,6 +38,7 @@ int reset()
     }
     if (input == 'n')
       exit(0);
+    clear();
     printf("Nieprawidłowa operacja!\n");
   } while (1);
 }
@@ -35,19 +48,25 @@ double get_input(char param_name)
   char input_ref[DOUBLE_INPUT_CHAR_LIMIT];
   char *e;
   double output;
+  regex_t regexr;
+  int is_valid;
+
   printf("Podaj parametr %c funkcji f(x) = ax^2 + bx + c:\n", param_name);
   fgets(input_ref, DOUBLE_INPUT_CHAR_LIMIT, stdin);
-  output = strtod(input_ref, &e);
-  if (!isspace(*e))
+  clear_buffer(input_ref);
+
+  is_valid = regcomp(&regexr, NUMBERS_REGEXR, REG_EXTENDED);
+  is_valid = regexec(&regexr, input_ref, 0, NULL, 0);
+
+  if (is_valid == REG_NOMATCH || errno == ERANGE)
   {
+    errno = 0;
     printf("Nieprawidłowy argument (konwersja do double jest niemożliwa)!\n");
-    clear();
-    get_input(param_name);
+    return get_input(param_name);
   }
-  else
-  {
-    return output;
-  }
+
+  output = strtod(input_ref, &e);
+  return output;
 }
 
 int main()
