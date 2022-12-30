@@ -14,6 +14,21 @@
 #define DATA_CHUNK_SIZE 32
 #define true 1
 #define false 0
+#define PRINT_HELP 'h'
+#define EXIT 'q'
+
+enum operations
+{
+  GET_ALL = '1',
+  GET_BY_ID,
+  ADD_NEW,
+  UPDATE_DATA,
+  DELETE_DATA,
+  STATUS_CHANGE,
+  GET_BY_GENRE,
+  GET_BY_AUTHOR,
+  GET_BY_TITLE
+};
 
 typedef struct Book
 {
@@ -433,31 +448,31 @@ int main()
 
     switch (*user_choice)
     {
-    case '1':
+    case GET_ALL:
       print_all(head);
       break;
-    case '2':
+    case GET_BY_ID:
       print_by_id(head);
       break;
-    case '3':
+    case ADD_NEW:
       head = add_new(head);
       break;
-    case '4':
+    case UPDATE_DATA:
       update_data(head);
       break;
-    case '5':
+    case DELETE_DATA:
       head = delete_data(head);
       break;
-    case '6':
+    case STATUS_CHANGE:
       change_status(head);
       break;
-    case '9':
+    case GET_BY_TITLE:
       print_by_title(head);
       break;
-    case 'h':
+    case PRINT_HELP:
       print_help();
       break;
-    case 'q':
+    case EXIT:
       printf("Opuszczanie programu...\n");
       exit(0);
     default:
