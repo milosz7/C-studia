@@ -40,6 +40,15 @@ void update_field(char **book_field, char *data)
   strcpy(*book_field, data);
 }
 
+void clear_buffer(char *input)
+{
+  char clear_buffer[2];
+  while (strchr(input, '\n') == NULL && clear_buffer[0] != '\n')
+  {
+    fgets(clear_buffer, 2, stdin);
+  }
+}
+
 void print_prompt(char *print_param)
 {
   printf("Podaj %s książki, którą chcesz dodać do bazy danych:\n", print_param);
@@ -48,6 +57,16 @@ void print_prompt(char *print_param)
 void message_too_short()
 {
   printf("Podane dane nie spełniają wymogu co do długości (minimum %d znaków).\n", MIN_INPUT_LEN);
+}
+
+void print_help()
+{
+  printf("-------------\n");
+  printf("Dostępne operacje:\n");
+  printf("\"1\" - pokaż listę wszystkich książek,\n");
+  printf("\"2\" - znajdź książkę po ID,\n");
+  printf("\"3\" - dodaj nową książkę do bazy danych,\n");
+  printf("\"4\" - edytuj dane książki w bazie danych,\n");
 }
 
 void print_data(Book *book)
@@ -60,18 +79,22 @@ void print_data(Book *book)
   printf("Dostępność: %s\n", (!book->is_borrowed) ? "Tak" : "Nie");
 }
 
-void get_by_id(char *id, Book *book)
+void get_by_id(Book *book)
 {
+  char passed_id[UUID_LEN + 1];
+  fgets(passed_id, UUID_LEN + 1, stdin);
+  clear_buffer(passed_id);
+
   while (book != NULL)
   {
-    if (strcmp(book->id, id) == 0)
+    if (strcmp(book->id, passed_id) == 0)
     {
       print_data(book);
       break;
     }
     book = book->next;
   }
-  if (book = NULL)
+  if (book == NULL)
   {
     printf("Książka o podanym ID nie istnieje!\n");
   }
@@ -89,10 +112,7 @@ void get_all(Book *book)
 Book *get_last(Book *book)
 {
   if (book->next == NULL)
-  {
-    printf("here %s", book->title);
     return book;
-  }
   get_last(book->next);
 }
 
@@ -118,8 +138,6 @@ void add_new(Book *head)
   char *title_input = (char *)malloc(title_inp_size);
   char *genre_input = (char *)malloc(genre_inp_size);
 
-  print_data(last);
-
   while (title_len < MIN_INPUT_LEN + 1)
   {
     print_prompt("tytuł");
@@ -134,7 +152,6 @@ void add_new(Book *head)
     print_prompt("autora");
     author_len = get_user_input(author_input, &author_inp_size);
     *(author_input + author_len - 1) = '\0';
-    printf("%d", author_len);
     if (author_len < MIN_INPUT_LEN + 1)
       message_too_short();
   }
@@ -156,6 +173,9 @@ void add_new(Book *head)
   new_book->next = NULL;
 
   last->next = new_book;
+
+  printf("Dodano nową książkę:\n");
+  print_data(new_book);
 }
 
 Book *create_sample_data()
@@ -191,10 +211,45 @@ Book *create_sample_data()
   return head;
 }
 
+void perform_operation(char user_choice, Book *head)
+{
+  switch (user_choice)
+  {
+  case '1':
+    get_all(head);
+    break;
+  case '2':
+    get_by_id(head);
+    break;
+  case '3':
+    add_new(head);
+  case 'h':
+    print_help();
+    break;
+  default:
+    printf("Nieprawidłowa operacja.\n");
+    print_help();
+    break;
+  }
+}
+
 int main()
 {
   Book *head, *test;
   head = create_sample_data();
+  print_help();
+
+  do
+  {
+    char user_choice[2];
+
+    printf("Wybierz operację jaką chcesz przeprowadzić: (h - wyświetl pomoc)\n");
+    fgets(user_choice, 2, stdin);
+    clear_buffer(user_choice);
+    perform_operation(*user_choice, head);
+
+  } while (1);
+
   add_new(head);
   get_all(head);
   // get_by_id("123", head);
