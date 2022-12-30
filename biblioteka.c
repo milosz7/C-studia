@@ -79,11 +79,17 @@ void print_data(Book *book)
   printf("Dostępność: %s\n", (!book->is_borrowed) ? "Tak" : "Nie");
 }
 
-void print_by_id(Book *book)
+char *input_id()
 {
-  char passed_id[UUID_LEN + 1];
+  char *passed_id = (char *)malloc(UUID_LEN + 1);
   fgets(passed_id, UUID_LEN + 1, stdin);
   clear_buffer(passed_id);
+  return passed_id;
+}
+
+void print_by_id(Book *book)
+{
+  char *passed_id = input_id();
 
   while (book != NULL)
   {
@@ -96,6 +102,7 @@ void print_by_id(Book *book)
   }
   if (book == NULL)
     printf("Książka o podanym ID nie istnieje!\n");
+  free(passed_id);
 }
 
 void print_all(Book *book)
@@ -186,9 +193,7 @@ Book *add_new(Book *head)
 Book *delete_data(Book *book)
 {
   printf("Podaj ID książki, którą chcesz usunąć:\n");
-  char passed_id[UUID_LEN + 1];
-  fgets(passed_id, UUID_LEN + 1, stdin);
-  clear_buffer(passed_id);
+  char passed_id * = input_id();
 
   Book *to_remove, *prev, *head;
   head = book;
@@ -198,6 +203,7 @@ Book *delete_data(Book *book)
     to_remove = head;
     head = book->next;
     free(to_remove);
+    free(passed_id);
     return head;
   }
 
@@ -207,11 +213,13 @@ Book *delete_data(Book *book)
     {
       to_remove = book->next;
       book->next = (to_remove->next != NULL) ? to_remove->next : NULL;
+      free(passed_id);
       free(to_remove);
       return head;
     }
     book = book->next;
   }
+  free(passed_id);
 }
 
 Book *create_sample_data()
