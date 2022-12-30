@@ -100,11 +100,15 @@ void get_by_id(Book *book)
 
 void get_all(Book *book)
 {
+  int counter = 0;
   while (book != NULL)
   {
+    counter++;
     print_data(book);
     book = book->next;
   }
+  if (!counter)
+    printf("Nie ma żadnych danych w bazie!\n");
 }
 
 Book *get_last(Book *book)
@@ -119,6 +123,7 @@ Book *get_last(Book *book)
 int get_user_input(char *input_ref, size_t *input_size)
 {
   int input_len = getline(&input_ref, input_size, stdin);
+  *(input_ref + input_len - 1) = '\0';
   return input_len;
 }
 
@@ -137,12 +142,11 @@ Book *add_new(Book *head)
   char *author_input = (char *)malloc(author_inp_size);
   char *title_input = (char *)malloc(title_inp_size);
   char *genre_input = (char *)malloc(genre_inp_size);
-
+  // moze byc lepiej zrobione
   while (title_len < MIN_INPUT_LEN + 1)
   {
     print_prompt("tytuł");
     title_len = get_user_input(title_input, &title_inp_size);
-    *(title_input + title_len - 1) = '\0';
     if (title_len < MIN_INPUT_LEN + 1)
       message_too_short();
   }
@@ -151,7 +155,6 @@ Book *add_new(Book *head)
   {
     print_prompt("autora");
     author_len = get_user_input(author_input, &author_inp_size);
-    *(author_input + author_len - 1) = '\0';
     if (author_len < MIN_INPUT_LEN + 1)
       message_too_short();
   }
@@ -160,7 +163,6 @@ Book *add_new(Book *head)
   {
     print_prompt("gatunek");
     genre_len = get_user_input(genre_input, &genre_inp_size);
-    *(genre_input + genre_len - 1) = '\0';
     if (genre_len < MIN_INPUT_LEN + 1)
       message_too_short();
   }
