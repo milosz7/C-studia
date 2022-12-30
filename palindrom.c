@@ -3,6 +3,7 @@
 #include <string.h>
 
 #define BASE_INPUT_SIZE 16
+#define MIN_INPUT_LEN 2
 
 void print_result(char* result, int is_palindrome) {
   if (is_palindrome) {
@@ -45,10 +46,10 @@ int main()
     int input_len = 1;
     int is_palindrome = 1;
     user_input = (char *)malloc(input_size * sizeof(char));
-    while (input_len < 2) {
+    while (input_len < MIN_INPUT_LEN) {
       printf("Podaj frazę aby sprawdzić czy jest palindromem:\n");
       input_len = getline(&user_input, &input_size, stdin);
-      if (input_len < 2) {
+      if (input_len < MIN_INPUT_LEN) {
         printf("Niepoprawny argument!\n");
       }
     }
