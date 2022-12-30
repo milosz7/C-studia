@@ -79,7 +79,7 @@ void print_data(Book *book)
   printf("Dostępność: %s\n", (!book->is_borrowed) ? "Tak" : "Nie");
 }
 
-void get_by_id(Book *book)
+void print_by_id(Book *book)
 {
   char passed_id[UUID_LEN + 1];
   fgets(passed_id, UUID_LEN + 1, stdin);
@@ -98,7 +98,7 @@ void get_by_id(Book *book)
     printf("Książka o podanym ID nie istnieje!\n");
 }
 
-void get_all(Book *book)
+void print_all(Book *book)
 {
   int counter = 0;
   while (book != NULL)
@@ -142,7 +142,7 @@ Book *add_new(Book *head)
   char *author_input = (char *)malloc(author_inp_size);
   char *title_input = (char *)malloc(title_inp_size);
   char *genre_input = (char *)malloc(genre_inp_size);
-  // moze byc lepiej zrobione
+
   while (title_len < MIN_INPUT_LEN + 1)
   {
     print_prompt("tytuł");
@@ -268,10 +268,10 @@ int main()
     switch (*user_choice)
     {
     case '1':
-      get_all(head);
+      print_all(head);
       break;
     case '2':
-      get_by_id(head);
+      print_by_id(head);
       break;
     case '3':
       head = add_new(head);
@@ -294,7 +294,7 @@ int main()
   } while (1);
 
   add_new(head);
-  get_all(head);
-  // get_by_id("123", head);
+  print_all(head);
+  // print_by_id("123", head);
   // printf("%s\n", test->author);
 }
