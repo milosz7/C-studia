@@ -44,9 +44,7 @@ void clear_buffer(char *input)
 {
   char clear_buffer[2];
   while (strchr(input, '\n') == NULL && clear_buffer[0] != '\n')
-  {
     fgets(clear_buffer, 2, stdin);
-  }
 }
 
 void print_prompt(char *print_param)
@@ -95,9 +93,7 @@ void get_by_id(Book *book)
     book = book->next;
   }
   if (book == NULL)
-  {
     printf("Książka o podanym ID nie istnieje!\n");
-  }
 }
 
 void get_all(Book *book)
