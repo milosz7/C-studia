@@ -111,10 +111,10 @@ int main()
             break;
           }
         }
-        if (current_idx == ARR_LENGTH(arr_size) - (remainder % 10) - 1)
+        if (current_idx == ARR_LENGTH(arr_size) - (remainder % SYSTEM_BASE) - 1)
         {
           chunks_to_alloc += 1;
-          arr_size = arr_size + sizeof(int) * (remainder % 10);
+          arr_size = arr_size + sizeof(int) * (remainder % SYSTEM_BASE);
           result_reverse = (int *)realloc(result_reverse, arr_size);
           if (result_reverse == NULL)
             mem_err();
