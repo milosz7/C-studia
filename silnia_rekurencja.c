@@ -1,13 +1,17 @@
 #include <stdio.h>
+#include <regex.h>
+#include <errno.h>
 #include <stdlib.h>
-#include <math.h>
 #include <string.h>
 
-#define MAX_LENGTH 1000
-#define SYSTEM_BASE 10
-#define MAX_FACTORIAL_LENGTH 5
-#define MAXIMUM_POSSIBLE_NUMBER 449
-#define ASCII_ZERO 48
+#define NUMBERS_REGEXR "^[1-9][0-9]*?\n$"
+#define INITIAL_INPUT_SIZE 16
+
+void clear()
+{
+  while ((getchar()) != '\n')
+    ;
+}
 
 int reset()
 {
@@ -18,142 +22,71 @@ int reset()
     scanf(" %c", &input);
     if (input == 'y')
     {
-      while ((getchar()) != '\n')
-        ;
+      clear();
       break;
     }
     if (input == 'n')
+    {
       exit(0);
+    }
+    clear();
     printf("Nieprawidłowa operacja!\n");
   } while (1);
 }
 
-int input_to_int(char *input)
+double count_factorial(double input)
 {
-  int length = 1;
-  int desired_number = 0;
-  int converted[length];
-  for (; input[length]; length++)
-    ;
-  for (int i = 0; i < length; i++)
-  {
-    char sign;
-    sign = input[i];
-    if (sign == '\n')
-      break;
-    if ((int)sign - ASCII_ZERO > 9 || (int)sign - ASCII_ZERO < 0)
-      return desired_number;
-    converted[i] = (int)sign - ASCII_ZERO;
-  }
-  for (int j = 0; j < length - 1; j++)
-  {
-    desired_number += (int)(converted[j] * pow(SYSTEM_BASE, (length - 2 - j)));
-  }
-  return desired_number;
+  if (input == 1)
+    return 1;
+  return input * count_factorial(input - 1);
 }
 
-int get_input()
+void clear_buffer(char *input)
 {
-  do
-  {
-    char user_input[MAX_FACTORIAL_LENGTH];
-    char clear_buffer[2];
-    int output = 0;
-    int overflow = 0;
-    printf("Podaj liczbę z jakiej chcesz obliczyć silnię:\n");
-    fgets(user_input, MAX_FACTORIAL_LENGTH, stdin);
-    output = input_to_int(user_input);
-    while (strchr(user_input, '\n') == NULL && clear_buffer[0] != '\n')
-    {
-      fgets(clear_buffer, 2, stdin);
-      overflow = 1;
-    }
-    clear_buffer[0] = 0;
-    if ((overflow && output != 0))
-    {
-      printf("Nieprawidłowy zakres liczby!\n");
-      continue;
-    }
-    if (overflow || output == 0)
-    {
-      printf("Nieprawidłowy argument!\n");
-      continue;
-    }
-    else
-    {
-      return output;
-    }
-  } while (1);
+  char clear_buffer[2];
+  while (strchr(input, '\n') == NULL && clear_buffer[0] != '\n')
+    fgets(clear_buffer, 2, stdin);
 }
 
-void print_result(int *result_reverse)
+double get_input()
 {
-  int num_start = 0;
-  char result[MAX_LENGTH];
-  for (int k = 0; k < MAX_LENGTH; k++)
-  {
-    sprintf(&result[k], "%d", result_reverse[MAX_LENGTH - 1 - k]);
-  }
-  for (num_start = 0; num_start < MAX_LENGTH - 1; num_start++)
-  {
-    if (result[num_start] != '0')
-      break;
-  }
-  for (; num_start < MAX_LENGTH; num_start++)
-  {
-    printf("%c", result[num_start]);
-  }
-  printf("\n");
-}
+  double output;
+  char *e;
+  size_t base_input_size = INITIAL_INPUT_SIZE;
+  char *user_input = (char *)malloc(INITIAL_INPUT_SIZE);
+  regex_t regexr;
+  int is_valid;
 
-int count_factorial(int *current_result, int multiplier)
-{
-  int result_length, digit, last_index, num_start, current_length;
-  int remainder = 0;
-  char result[MAX_LENGTH];
-  for (int j = 0; j < MAX_LENGTH; j++)
+  printf("Podaj liczbę z jakiej chcesz obliczyć silnię:\n");
+  getline(&user_input, &base_input_size, stdin);
+
+  clear_buffer(user_input);
+
+  is_valid = regcomp(&regexr, NUMBERS_REGEXR, REG_EXTENDED);
+  is_valid = regexec(&regexr, user_input, 0, NULL, 0);
+
+  output = strtod(user_input, &e);
+  if (is_valid == REG_NOMATCH)
   {
-    digit = current_result[j] * (multiplier) + remainder;
-    current_result[j] = digit % SYSTEM_BASE;
-    remainder = digit / SYSTEM_BASE;
+    printf("Podany argument jest niepoprawny!\n");
+    return get_input(user_input);
   }
-  if (remainder > 0)
+  if (errno == ERANGE)
   {
-    printf("Nastąpiło przepełnienie!\n");
-  } else if (multiplier > 1)
-  {
-    count_factorial(current_result, multiplier - 1);
-  } else {
-    print_result(current_result);
+    errno = 0;
+    printf("Podany argument wykracza poza zasięg liczbowy typu double!\n");
+    return get_input(user_input);
   }
+  return (int)output;
 }
 
 int main()
 {
   do
   {
-    char input[MAX_FACTORIAL_LENGTH];
-    char result[MAX_LENGTH];
-    char clear_buffer[2];
-    int *overflow = 0;
-    int result_reverse[MAX_LENGTH] = {1};
-    int digit, remainder, factorial, factorial_remainder, result_length;
-    int idx = 0;
-    factorial = get_input();
-    if (factorial == 0)
-    {
-      printf("Podany argument nie jest poprawny.\n\n");
-      continue;
-    }
-    factorial_remainder = factorial;
-    while (factorial_remainder != 0)
-    {
-      digit = factorial_remainder % SYSTEM_BASE;
-      result_reverse[idx] = digit;
-      idx++;
-      factorial_remainder /= SYSTEM_BASE;
-    }
-    count_factorial(result_reverse, factorial - 1);
+    double result, input = get_input();
+    printf("Silnia z liczby %.0f wynosi: %.0f (inf oznacza przeroczenie zakresu).\n",
+           input, count_factorial(input));
     reset();
   } while (1);
 }
