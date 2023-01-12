@@ -266,13 +266,15 @@ int main()
 
     x_start = get_value("Podaj początek zakresu parametrów funkcji do obliczenia całki:");
 
-    while (x_start >= x_end)
+    do
     {
-      x_end = get_value("Podaj koniec zakresu parametrów funkcji do obliczenia całki:");
+      {
+        x_end = get_value("Podaj koniec zakresu parametrów funkcji do obliczenia całki:");
 
-      if (x_start >= x_end)
-        printf("Początek zakresu musi być liczbą mniejszą od liczby końca zakresu!\n");
-    }
+        if (x_start >= x_end)
+          printf("Początek zakresu musi być liczbą mniejszą od liczby końca zakresu!\n");
+      }
+    } while (x_start >= x_end);
 
     x_range = fabs(x_end) - fabs(x_start);
 
